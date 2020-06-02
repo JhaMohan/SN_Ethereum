@@ -74,18 +74,38 @@ async loadBlockchainData() {
 
 }
 
+createPost(content) {
+  console.log(this.loading)
+  this.setState({ loading: true })
+  this.state.socialNetwork.methods
+    .createPost(content)
+    .send({ from: this.state.account })
+    .on('transactionHash', function(hash){
+       console.log(hash)
+     })
+    .on('confirmation', function(confirmationNumber, receipt){
+      console.log(confirmationNumber)
+      console.log(receipt)
+      window.location.reload();
+    })
+}
+
+
+
 
 constructor(props) {
   super(props)
   this.state = {
     account: '',
-    socialNetwork:null,
-    postCount:0,
-    posts:[],
-    loading:true
+    socialNetwork: null,
+    postCount: 0,
+    posts: [],
+    loading: true
   }
-}
 
+  this.createPost = this.createPost.bind(this)
+ 
+}
 
 
   render() {
@@ -95,7 +115,10 @@ constructor(props) {
         { this.state.loading 
           ? <div id ="loader" className="text-center mt-5"><p>loading.......</p></div>
           :
-          <Main posts = {this.state.posts}/>
+          <Main 
+               posts = {this.state.posts}
+               createPost= {this.createPost}
+          />
         }
         
      </div>
