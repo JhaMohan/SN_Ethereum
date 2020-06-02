@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import Web3 from 'web3';
-import logo from '../logo.png';
 import './App.css';
-import Navbar from './Navbar'
+import Navbar from './Navbar';
+import Main from './Main'
 import SocialNetwork from '../abis/SocialNetwork.json'
 
 
@@ -41,19 +41,35 @@ async loadBlockchainData() {
 
    //networkId
    const networkId = await web3.eth.getId()
-   console.log(networkId)
-   console.log(SocialNetwork.networks[networkId])
+  //  console.log(networkId)
+  //  console.log(SocialNetwork.networks[networkId])
 
    const networkData = SocialNetwork.networks[networkId]
   //Address
   if(networkData) {
     const socialNetwork = web3.eth.Contract(SocialNetwork.abi,networkData.address)
-    console.log(socialNetwork)
+    // console.log(socialNetwork)
+    this.setState({socialNetwork})
+    const postCount = await socialNetwork.methods.postCount().call()
+    this.setState({postCount})
+    // console.log(postCount)
+
+    //Load post
+    for(var i =1; i<= postCount; i++) {
+      const post = await socialNetwork.methods.posts(i).call()
+      this.setState({
+        posts:[...this.state.posts,post]
+      })
+    }
+    console.log({posts:this.state.posts})
+
+    this.setState({loading:false})
+
   }else {
     console.log('Social Network contract not deployed to detect network')
   }
 
-  //ABI
+  
 
 
 }
@@ -62,7 +78,11 @@ async loadBlockchainData() {
 constructor(props) {
   super(props)
   this.state = {
-    account: ''
+    account: '',
+    socialNetwork:null,
+    postCount:0,
+    posts:[],
+    loading:true
   }
 }
 
@@ -72,34 +92,13 @@ constructor(props) {
     return (
       <div>
         <Navbar account ={this.state.account}/>
-        <div className="container-fluid mt-5">
-          <div className="row">
-            <main role="main" className="col-lg-12 d-flex text-center">
-              <div className="content mr-auto ml-auto">
-                <a
-                  href="src/logo.png"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <img src={logo} className="App-logo" alt="logo" />
-                </a>
-                <h1>Post Blog on Blockchain Platform</h1>
-                <p>
-                  Edit <code>src/components/App.js</code> and save to reload.
-                </p>
-                <a
-                  className="App-link"
-                  href="src/logo.png"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  LEARN BLOCKCHAIN <u><b>NOW! </b></u>
-                </a>
-              </div>
-            </main>
-          </div>
-        </div>
-      </div>
+        { this.state.loading 
+          ? <div id ="loader" className="text-center mt-5"><p>loading.......</p></div>
+          :
+          <Main posts = {this.state.posts}/>
+        }
+        
+     </div>
     );
   }
 }
