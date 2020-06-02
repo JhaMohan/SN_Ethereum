@@ -61,7 +61,13 @@ async loadBlockchainData() {
         posts:[...this.state.posts,post]
       })
     }
-    console.log({posts:this.state.posts})
+    // console.log({posts:this.state.posts})
+
+    //sort the post by their tip amount
+
+    this.setState({
+      posts: this.state.posts.sort((a,b)=> b.tipAmount - a.tipAmount)
+    })
 
     this.setState({loading:false})
 
@@ -75,7 +81,6 @@ async loadBlockchainData() {
 }
 
 createPost(content) {
-  console.log(this.loading)
   this.setState({ loading: true })
   this.state.socialNetwork.methods
     .createPost(content)
@@ -92,6 +97,22 @@ createPost(content) {
 
 
 
+tipPost(_id) {
+  this.setState({ loading: true })
+  this.state.socialNetwork.methods
+    .tipPost(_id)
+    .send({ from: this.state.account, value: window.web3.utils.toWei('0.1','ether')})
+    .on('transactionHash', function(hash){
+       console.log(hash)
+     })
+    .on('confirmation', function(confirmationNumber, receipt){
+      console.log(confirmationNumber)
+      console.log(receipt)
+      window.location.reload();
+    })
+}
+
+
 
 constructor(props) {
   super(props)
@@ -104,6 +125,7 @@ constructor(props) {
   }
 
   this.createPost = this.createPost.bind(this)
+  this.tipPost = this.tipPost.bind(this)
  
 }
 
@@ -118,6 +140,7 @@ constructor(props) {
           <Main 
                posts = {this.state.posts}
                createPost= {this.createPost}
+               tipPost = {this.tipPost}
           />
         }
         

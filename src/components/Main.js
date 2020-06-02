@@ -28,10 +28,9 @@ class Main extends Component {
                 </form>
                 <p>&nbsp;</p>
                   {this.props.posts.map((post,key)=>{
+
                       return (
-                        
-                        <div className="card nb-4" key={key}>
-                                 
+                        <div className="card mb-4" key={key}>   
                           <div className="card-header">
                               
                           <img 
@@ -44,13 +43,17 @@ class Main extends Component {
                           </div>
                           <ul id="postList" className="list-group list-group-flush">
                             <li className="list-group-item">
-                      <p>{post.content}</p>
+                                {post.content}
                             </li>
                             <li key={key} className="list-group-item py-2">
                               <small className="float-left mt-1 text-muted">
                                 TIPS: {window.web3.utils.fromWei(post.tipAmount.toString(),'ether')} ETH
                               </small>
-                              <button className="btn btn-link btn-sm float-right pt-0">
+                              <button className="btn btn-link btn-sm float-right pt-0"
+                                 onClick={(event)=>{
+                                     this.props.tipPost(post.id)
+                                 }}
+                              >
                                 <span>
                                   TIP 0.1 ETH
                                 </span>
